@@ -1,0 +1,25 @@
+# Ignorar ambientes virtuais
+.env/
+.venv/
+env/
+
+# Ignorar arquivos e pastas de dependências Java
+*.jar
+jars/
+
+# Ignorar cache do Python
+__pycache__/
+*.pyc
+
+# Ignorar arquivos de configuração do VSCode
+.vscode/
+
+# Ignorar arquivos de saída
+output/
+
+# Ignorar dados temporários
+*.log
+*.tmp
+
+# Ignorar dados de entrada simulados
+/data/
