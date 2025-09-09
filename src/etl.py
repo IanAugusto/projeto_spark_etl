@@ -1,25 +1,33 @@
-# Script principal do pipeline ETL
-from pyspark.sql import SparkSession
+# Script principal do pipeline ETL usando psycopg2
+import psycopg2
+import pandas as pd
+from db_config import DB_CONFIG
 
-spark = (
-    SparkSession.builder
-    .appName("ETL_Pipeline")
-    .config("spark.jars", "jars/postgresql-42.7.7.jar")  # <-- Adicione o caminho do JAR aqui
-    .getOrCreate()
-)
+# Conecta ao banco de dados PostgreSQL
+conn = psycopg2.connect(**DB_CONFIG)
+cursor = conn.cursor()
 
-df = (
-    spark.read
-    .format("jdbc")
-    .option("url", "jdbc:postgresql://localhost:5432/postgres")
-    .option("dbtable", "tb_taxa_selic")
-    .option("user", "postgres")
-    .option("password", "123456")
-    .option("driver", "org.postgresql.Driver") 
-    .load()
-)
+# Seleciona os 1000 primeiros registros da tabela tb_taxa_selic
+query = "SELECT * FROM tb_taxa_selic"
+cursor.execute(query)
+rows = cursor.fetchall()
 
-# Transformações Spark
-df_clean = df.dropna()
-df_clean.write.csv("../output/dados_final.csv", header=True, mode="overwrite")
-spark.stop()
+# Obtém os nomes das colunas
+colnames = [desc[0] for desc in cursor.description]
+
+# Cria um DataFrame pandas com os dados
+df_top1000 = pd.DataFrame(rows, columns=colnames)
+
+# Salva o DataFrame em CSV
+df_top1000.to_csv("./output/txa_selic.csv", index=False)
+
+def salvar_excel(df, caminho_arquivo):
+    """
+    Salva o DataFrame como arquivo Excel (.xlsx)
+    """
+    df.to_excel(caminho_arquivo, index=False)
+
+# Exemplo de uso após criar o DataFrame:
+salvar_excel(df_top1000, "./output/top1000.xlsx")
+
+cursor.close()

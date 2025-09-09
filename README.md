@@ -1,56 +1,86 @@
-# Projeto Spark ETL
+# Projeto Spark ETL - Taxa Selic
 
-Pipeline de ETL distribuído utilizando PySpark e PostgreSQL
+Este projeto realiza a extração, transformação e carga (ETL) dos dados da Taxa Selic, utilizando Python, PostgreSQL e Pandas. Os dados são obtidos diretamente da API do Banco Central, armazenados em banco de dados e exportados para arquivos CSV e Excel.
 
-Este projeto está em desenvolvimento e visa demonstrar como construir uma rotina ETL (Extract, Transform, Load) utilizando PySpark para processar dados de um banco PostgreSQL, realizar transformações e exportar os resultados em formato CSV.
+## Estrutura de Pastas
 
-## Objetivos
+```
+projeto_spark_etl/
+├── data/                # (Opcional) Pasta para dados simulados
+├── src/
+│   ├── etl.py           # Pipeline principal: consulta e exportação dos dados
+│   └── api_db.py        # Script para buscar dados da API e inserir no banco
+│   └── utils.py         # Funções auxiliares
+├── output/              # Dados processados e relatórios gerados
+├── requirements.txt     # Dependências do projeto
+├── README.md            # Documentação do projeto
+```
 
-- Integrar o Spark, via PySpark, com bancos de dados relacionais utilizando JDBC.
-- Aplicar transformações de dados (como limpeza, filtragem e manipulação) de forma distribuída.
-- Salvar os dados processados em arquivos para análise ou integração com outras ferramentas.
-- Documentar o processo de configuração do ambiente, incluindo dependências específicas para Windows.
+## Fluxo do Projeto
 
-## Tecnologias Utilizadas
+1. **Coleta de Dados**
+   - O script `src/api_db.py` acessa a [API do Banco Central](https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados?formato=json) e insere os dados na tabela `tb_taxa_selic` do PostgreSQL.
 
-- **Python 3.10+**
-- **PySpark**
-- **PostgreSQL**
-- **JDBC Driver (PostgreSQL)**
-- **winutils.exe** (necessário para rodar Spark em ambientes Windows)
+2. **Processamento e Exportação**
+   - O script `src/etl.py` conecta ao banco, seleciona os dados da tabela e exporta para arquivos CSV e Excel na pasta `output/`.
 
-## Estrutura do Projeto
+## Como Executar
 
-- `src/etl.py` — Script principal do pipeline ETL.
-- `src/api_db.py` — Funções de integração com o banco de dados.
-- `output/` — Pasta destino dos arquivos gerados (CSV).
-- `jars/` — Drivers JDBC necessários para comunicação com o banco.
-- `.venv/` — Ambiente virtual Python para gerenciamento de dependências.
+### 1. Preparação do Ambiente
 
-## Status do Projeto
+Crie e ative um ambiente virtual:
+```powershell
+python -m venv env
+.\env\Scripts\Activate
+```
 
-**Este projeto ainda está em desenvolvimento e não está finalizado.**
-Algumas funcionalidades e documentações podem sofrer alterações ou aprimoramentos ao longo do tempo.
+Instale as dependências:
+```powershell
+pip install -r requirements.txt
+```
 
-## Como executar
+### 2. Configuração do Banco de Dados
 
-1. Instale as dependências Python com `pip install -r requirements.txt`
-2. Baixe e configure o driver JDBC do PostgreSQL em `jars/`
-3. (Windows) Baixe e configure o `winutils.exe` em `C:\hadoop\bin`
-4. Ajuste as configurações de conexão com o banco em `src/api_db.py`
-5. Execute o pipeline:
-    ```
-    python src/etl.py
-    ```
+- Crie um banco PostgreSQL local.
+- Crie a tabela `tb_taxa_selic`:
+  ```sql
+  CREATE TABLE tb_taxa_selic (
+      id_info SERIAL PRIMARY KEY,
+      dia DATE,
+      valor NUMERIC
+  );
+  ```
+- Configure o arquivo `src/db_config.py` com suas credenciais de acesso.
 
-## Próximos passos
+### 3. Coleta e Inserção dos Dados
 
-- Adicionar testes automatizados
-- Melhorar tratamento de erros e validações
-- Documentação detalhada das etapas do ETL
-- Exemplos de transformações mais avançadas
-- Suporte para outros bancos ou formatos de saída
+Execute o script para buscar e inserir os dados da API:
+```powershell
+python src/api_db.py
+```
 
----
+### 4. Exportação dos Dados
 
-Se tiver sugestões ou encontrar problemas, fique à vontade para abrir uma issue ou contribuir!
+Execute o pipeline ETL para exportar os dados:
+```powershell
+python src/etl.py
+```
+
+Os arquivos gerados estarão na pasta `output/`.
+
+## Observações
+
+- O projeto utiliza apenas Pandas e Psycopg2 para manipulação dos dados.
+- O uso do Spark está planejado para versões futuras.
+- Para exportar em Excel, o Pandas precisa do pacote `openpyxl` instalado.
+
+## Dependências Principais
+
+- pandas
+- psycopg2-binary
+- requests
+- openpyxl (para exportação Excel)
+
+## Autor
+
+Projeto desenvolvido por Ian Augusto Alvarenga Tonim.
