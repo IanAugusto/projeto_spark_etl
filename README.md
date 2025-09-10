@@ -1,4 +1,4 @@
-# Projeto Spark ETL - Taxa Selic
+# Projeto ETL - Taxa Selic
 
 Este projeto realiza a extração, transformação e carga (ETL) dos dados da Taxa Selic, utilizando Python, PostgreSQL e Pandas. Os dados são obtidos diretamente da API do Banco Central, armazenados em banco de dados e exportados para arquivos CSV e Excel.
 
